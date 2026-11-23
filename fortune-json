@@ -1,0 +1,55 @@
+#!/bin/bash
+# fortune-json – print a random quote + author from a JSON file
+# Usage: fortune-json /path/to/quotes.json
+
+VERSION="0.0.1"
+
+if [[ $# -eq 0 || "$1" == "-h" || "$1" == "--help" ]]; then
+    cat <<EOF
+fortune-json $VERSION
+
+Usage: fortune-json /path/to/quotes.json
+
+JSON format (array of objects):
+[
+  {
+    "quote": "Straight not straightened.",
+    "author": "Marcus Aurelius"
+  }
+]
+EOF
+    exit 0
+fi
+
+if [[ "$1" == "-v" || "$1" == "--version" ]]; then
+    echo "fortune-json $VERSION"
+    exit 0
+fi
+
+QUOTE_DB="$1"
+
+if [[ ! -f "$QUOTE_DB" ]]; then
+    echo "Error: file not found: $QUOTE_DB" >&2
+    exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: 'jq' is required but not installed." >&2
+    exit 1
+fi
+
+RESULT=$(jq -r '
+  if type != "array" then
+    error("JSON root must be an array")
+  else
+    .[(now * 1000000 | floor) % length] |
+    "\(.quote)\n    — \(.author)"
+  end
+' "$QUOTE_DB")
+
+if [[ $? -ne 0 || -z "$RESULT" ]]; then
+    echo "Error: failed to read a quote from $QUOTE_DB" >&2
+    exit 1
+fi
+
+echo "$RESULT"
