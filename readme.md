@@ -40,6 +40,7 @@ I built the script to expect a fairly specific JSON structure that utilizes two 
     {
     "quote": "You can’t stop the waves, but you can learn how to surf.",
     "author": "John Kabat-Zin"
+    },
     {
     "quote": "And those who were seen dancing were thought to be insane by those who could not hear the music.",
     "author": "Friedrich Nietzsche"
